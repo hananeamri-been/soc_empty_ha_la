@@ -89,7 +89,10 @@ app.o: ../app.c \
  c:\users\hanan\simplicitystudio\sdks\gecko_sdk\protocol\bluetooth\inc\sl_bgapi.h \
  c:\users\hanan\simplicitystudio\sdks\gecko_sdk\protocol\bluetooth\inc\sl_bt_api_compatibility.h \
  ../app.h \
- c:\users\hanan\simplicitystudio\sdks\gecko_sdk\app\bluetooth\common\sensor_rht\sl_sensor_rht.h
+ c:\users\hanan\simplicitystudio\sdks\gecko_sdk\app\bluetooth\common\sensor_rht\sl_sensor_rht.h \
+ ../temperature.h \
+ C:\Users\hanan\SimplicityStudio\v5_workspace\soc_empty_ha_la\autogen/gatt_db.h \
+ c:\users\hanan\simplicitystudio\sdks\gecko_sdk\protocol\bluetooth\inc\sli_bt_gattdb_def.h
 c:\users\hanan\simplicitystudio\sdks\gecko_sdk\platform\common\toolchain\inc\sl_gcc_preinclude.h:
 c:\users\hanan\simplicitystudio\sdks\gecko_sdk\platform\emlib\inc\em_common.h:
 c:\users\hanan\simplicitystudio\sdks\gecko_sdk\platform\device\siliconlabs\efr32mg12p\include\em_device.h:
@@ -181,3 +184,6 @@ c:\users\hanan\simplicitystudio\sdks\gecko_sdk\protocol\bluetooth\inc\sl_bgapi.h
 c:\users\hanan\simplicitystudio\sdks\gecko_sdk\protocol\bluetooth\inc\sl_bt_api_compatibility.h:
 ../app.h:
 c:\users\hanan\simplicitystudio\sdks\gecko_sdk\app\bluetooth\common\sensor_rht\sl_sensor_rht.h:
+../temperature.h:
+C:\Users\hanan\SimplicityStudio\v5_workspace\soc_empty_ha_la\autogen/gatt_db.h:
+c:\users\hanan\simplicitystudio\sdks\gecko_sdk\protocol\bluetooth\inc\sli_bt_gattdb_def.h:

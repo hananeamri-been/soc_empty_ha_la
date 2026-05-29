@@ -33,7 +33,8 @@
 #include "app.h"
 #include "app_log.h"
 #include "sl_sensor_rht.h"
-
+#include "temperature.h"
+#include "gatt_db.h"
 
 
 uint32_t humidity_value;
@@ -137,27 +138,25 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     ///////////////////////////////////////////////////////////////////////////
     case sl_bt_evt_gatt_server_user_read_request_id:
 
-      int16_t temperature_ble;
+      {
+          uint16_t characteristic =
+              evt->data.evt_gatt_server_user_read_request.characteristic;
 
-      sc = sl_sensor_rht_get(humidity, temperature);
-      app_assert_status(sc);
+          if (characteristic == gattdb_temperature)
+          {
+              int16_t temperature_ble;
 
-      temperature_ble = (int16_t)(*temperature / 10);
+              temperature_ble = temperature_get_ble();
 
-      app_log_info("Humidity = %lu.%03lu %%\n",
-                   (*humidity) / 1000,
-                   (*humidity) % 1000);
+              app_log_info("Lecture Temperature\n");
+              app_log_info("Temperature BLE = %d\n",
+                           temperature_ble);
+          }
 
-      app_log_info("Temperature = %ld.%03ld C\n",
-                   (*temperature) / 1000,
-                   (*temperature) % 1000);
-
-      app_log_info("Temperature BLE = %d\n",
-                   temperature_ble);
-
-
-
+          break;
+      }
       break;
+
     // -------------------------------
     // Default event handler.
     default:
