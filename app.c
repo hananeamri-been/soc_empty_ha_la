@@ -142,15 +142,28 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
           uint16_t characteristic =
               evt->data.evt_gatt_server_user_read_request.characteristic;
 
+          uint8_t connection =
+              evt->data.evt_gatt_server_user_read_request.connection;
+
           if (characteristic == gattdb_temperature)
           {
               int16_t temperature_ble;
+              uint16_t sent_len;
 
               temperature_ble = temperature_get_ble();
 
               app_log_info("Lecture Temperature\n");
               app_log_info("Temperature BLE = %d\n",
                            temperature_ble);
+              sc = sl_bt_gatt_server_send_user_read_response(
+                  connection,
+                  characteristic,
+                  0,
+                  sizeof(temperature_ble),
+                  (uint8_t *)&temperature_ble,
+                  &sent_len);
+
+              app_assert_status(sc);
           }
 
           break;
