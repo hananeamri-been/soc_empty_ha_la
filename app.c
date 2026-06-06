@@ -35,6 +35,10 @@
 #include "sl_sensor_rht.h"
 #include "temperature.h"
 #include "gatt_db.h"
+#include "sl_sleeptimer.h"
+
+
+#define TEMPERATURE_TIMER_SIGNAL (1 << 0)
 
 
 uint32_t humidity_value;
@@ -48,9 +52,20 @@ int32_t *temperature = &temperature_value;
 // The advertising set handle allocated from Bluetooth stack.
 static uint8_t advertising_set_handle = 0xff;
 
+static sl_sleeptimer_timer_handle_t temperature_timer;
+
+static uint8_t ble_connection;
 /**************************************************************************//**
  * Application Init.
  *****************************************************************************/
+
+void temperature_timer_callback(sl_sleeptimer_timer_handle_t *handle,
+                                void *data)
+{
+  sl_bt_external_signal(TEMPERATURE_TIMER_SIGNAL);
+}
+
+
 SL_WEAK void app_init(void)
 {
   /////////////////////////////////////////////////////////////////////////////
@@ -88,6 +103,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     // -------------------------------
     // This event indicates the device has started and the radio is ready.
     // Do not call any stack command before receiving this boot event!
+
     case sl_bt_evt_system_boot_id:
       // Create an advertising set.
       sc = sl_bt_advertiser_create_set(&advertising_set_handle);
@@ -115,6 +131,10 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     // -------------------------------
     // This event indicates that a new connection was opened.
     case sl_bt_evt_connection_opened_id:
+
+      ble_connection =
+          evt->data.evt_connection_opened.connection;
+
       app_log_info("%s : connection_opened!\n",__FUNCTION__);
       break;
 
@@ -132,6 +152,31 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
                                          sl_bt_legacy_advertiser_connectable);
       app_assert_status(sc);
       break;
+
+    case sl_bt_evt_system_external_signal_id:
+
+        if (evt->data.evt_system_external_signal.extsignals
+            & TEMPERATURE_TIMER_SIGNAL)
+        {
+            app_log_info("Signal temperature recu\n");
+
+            int16_t temperature_ble;
+
+            temperature_ble = temperature_get_ble();
+
+            sl_bt_gatt_server_send_notification(
+                ble_connection,
+                gattdb_temperature,
+                sizeof(temperature_ble),
+                (uint8_t *)&temperature_ble);
+
+            app_log_info("Temperature BLE = %d\n",
+                         temperature_ble);
+        }
+
+        break;
+
+
 
     ///////////////////////////////////////////////////////////////////////////
     // Add additional event handlers here as your application requires!      //
@@ -196,12 +241,18 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
             && (status_flags == sl_bt_gatt_server_client_config))
         {
             app_log_info("Notify Temperature detecte\n");
+            sl_sleeptimer_start_periodic_timer_ms(
+                &temperature_timer,
+                1000,
+                temperature_timer_callback,
+                NULL,
+                0,
+                0);
 
         }
 
         break;
 
-        break;
 
 
     // -------------------------------
