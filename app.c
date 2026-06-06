@@ -170,6 +170,40 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       }
       break;
 
+    case sl_bt_evt_gatt_server_characteristic_status_id:
+
+        uint16_t characteristic =
+            evt->data.evt_gatt_server_characteristic_status.characteristic;
+
+        uint8_t status_flags =
+            evt->data.evt_gatt_server_characteristic_status.status_flags;
+
+        uint16_t client_config_flags =
+            evt->data.evt_gatt_server_characteristic_status.client_config_flags;
+
+        app_log_info("CCCD modifie\n");
+
+        app_log_info("Characteristic = %d\n",
+                     characteristic);
+
+        app_log_info("Status Flags = %d\n",
+                     status_flags);
+
+        app_log_info("Client Config Flags = %d\n",
+                     client_config_flags);
+
+        if ((characteristic == gattdb_temperature)
+            && (status_flags == sl_bt_gatt_server_client_config))
+        {
+            app_log_info("Notify Temperature detecte\n");
+
+        }
+
+        break;
+
+        break;
+
+
     // -------------------------------
     // Default event handler.
     default:
