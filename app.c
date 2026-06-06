@@ -36,6 +36,8 @@
 #include "temperature.h"
 #include "gatt_db.h"
 #include "sl_sleeptimer.h"
+#include "sl_simple_led_instances.h"
+#include "sl_simple_led.h"
 
 
 #define TEMPERATURE_TIMER_SIGNAL (1 << 0)
@@ -75,6 +77,7 @@ SL_WEAK void app_init(void)
   /////////////////////////////////////////////////////////////////////////////
   app_log_info("%s\n", __FUNCTION__);
   sl_sensor_rht_init();
+  sl_simple_led_init_instances();
 }
 
 /**************************************************************************//**
@@ -107,8 +110,31 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     case sl_bt_evt_gatt_server_user_write_request_id:
 
         app_log_info("Write detecte\n");
+
+        app_log_info("Opcode = %d\n",
+        evt->data.evt_gatt_server_user_write_request.att_opcode);
+
         app_log_info("Valeur = %d\n",
-        evt->data.evt_gatt_server_user_write_request.value.data[0]);
+                     evt->data.evt_gatt_server_user_write_request.value.data[0]);
+        app_log_info("Taille = %d\n",
+        evt->data.evt_gatt_server_user_write_request.value.len);
+
+        if (evt->data.evt_gatt_server_user_write_request.value.data[0] == 1)
+        {
+            sl_led_turn_on(&sl_led_led0);
+        }
+        else
+        {
+            sl_led_turn_off(&sl_led_led0);
+        }
+
+        uint8_t connection =
+        evt->data.evt_gatt_server_user_write_request.connection;
+
+        sl_bt_gatt_server_send_user_write_response(
+            connection,
+            evt->data.evt_gatt_server_user_write_request.characteristic,
+            0);
 
         break;
 
@@ -183,7 +209,6 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
         }
 
         break;
-
 
 
     ///////////////////////////////////////////////////////////////////////////
